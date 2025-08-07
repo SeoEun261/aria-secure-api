@@ -1,0 +1,68 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.5.3'
+	id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com.aria'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(17)
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'org.postgresql:postgresql:42.5.0'
+	implementation("org.bouncycastle:bcprov-jdk18on:1.81")
+	implementation 'jakarta.annotation:jakarta.annotation-api:2.1.1'
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+	testRuntimeOnly 'com.h2database:h2'
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+}
+
+tasks.register('runKeyStoreGenerator', JavaExec) {
+	mainClass.set('com.example.ariaapi.util.KeyStoreGenerator')
+	classpath = sourceSets.main.runtimeClasspath // main 소스셋의 모든 런타임 의존성을 클래스패스에 포함
+	// 필요한 경우 JVM 인자 추가 (예: --enable-preview)
+	// jvmArgs '--enable-preview'
+	standardInput = System.in
+	standardOutput = System.out
+	errorOutput = System.err
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
+
+tasks.withType(Javadoc) {
+	options.encoding = 'UTF-8'
+	options.charSet = 'UTF-8'
+}
+
+test {
+	useJUnitPlatform() // JUnit 5 사용 시 필요
+
+	// 테스트 실행 시 로깅 설정
+	testLogging {
+		events "passed", "skipped", "failed" // 어떤 이벤트를 로그할지 설정
+		showStandardStreams = true // <-- 이 라인이 true로 설정되어 있는지 확인합니다.
+		// 표준 출력(System.out.println)과 표준 에러 스트림을 콘솔에 표시
+		exceptionFormat = 'full' // 예외 스택 트레이스를 전체 표시
+	}
+
+	// JVM 인자 추가 (선택 사항: 로깅 디버그용)
+	// jvmArgs '-Dlogging.level.com.example.ariaapi=DEBUG'
+	// jvmArgs '-Dspring.jpa.show-sql=true'
+}
